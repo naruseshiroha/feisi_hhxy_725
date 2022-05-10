@@ -1,0 +1,51 @@
+server:
+  port: 8088
+spring:
+  redis:
+    host: localhost
+    port: 6379
+
+  #warn spring.jpa.open-in-view is enabled by default.
+  # jpa:
+  #   open-in-view: false
+  devtools:
+    restart:
+      enabled: true
+  mvc:
+    static-path-pattern: /static/**
+  # web:
+  #   resources:
+  #     static-locations:
+  #       - classpath:/templates/
+  #       - classpath:/resources/
+  #       - classpath:/static/
+  # - classpath:/public/
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    # allowMultiQueries=true 就是支持多条sql同时执行的参数 
+    url: jdbc:mysql:///1908rg?useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: root
+    password: Administrator
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      initial-size: 10
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+
+# 输出 SQL
+logging:
+  level:
+    com:
+      example:
+        # mapper: trace
+        mapper: debug
+# dir
+# key: Summer Pockets
+
