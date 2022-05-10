@@ -24,3 +24,5 @@ hs_err_pid*
 # 忽略node包
 node_modules/
 dist/
+
+src/
