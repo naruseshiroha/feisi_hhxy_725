@@ -58,9 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     public List<UserResp> findUser(UserReq userReq) {
         LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<>();
-        // lqw.eq(!StringUtils.isEmpty(userReq.getLoginName()), User::getLoginName,
-        // userReq.getLoginName());
-
+        lqw.like(userReq.getLoginName() != null, User::getLoginName, userReq.getLoginName());
         List<UserResp> userResps = baseMapper.selectList(lqw).stream().map(user -> {
             UserResp userResp = new UserResp();
             BeanUtils.copyProperties(user, userResp);
@@ -80,7 +78,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 user.setId(snowFlake.nextId());
                 flag = baseMapper.insert(user) > 0 ? true : false;
             } else {
-                // throw 用户已存在
                 throw new BusinessException(BusinessExceptionCode.USER_LOGIN_NAME_EXIST);
             }
         } else {
@@ -96,10 +93,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return baseMapper.deleteById(id) > 0;
     }
 
-    @Override
-    /**
-     * 校验用户名是否重复
-     */
     public User selectByLoginName(String loginName) {
         LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<>();
         return baseMapper.selectOne(lqw.eq(User::getLoginName, loginName));
@@ -113,29 +106,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public UserLoginResp login(UserLoginReq req) {
-        // 思考：拿用户名+密码去数据库查吗？
-        // 还是先拿用户名查，然后去比对密码？
         User userDB = selectByLoginName(req.getLoginName());
-        // 提示给自己看越详细越好，提示给别人看越笼统越好，防止拿数据撞库
         if (ObjectUtils.isEmpty(userDB)) {
-            // 用户名不存在
             LOG.info("用户名不存在，{}", req.getLoginName());
             throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
         } else {
             if (userDB.getPassword().equals(req.getPassword())) {
-                // 登录成功
-                // UserLoginResq userLoginResq = CopyUtil.copy(userDB,UserLoginResq.class);
-                // return userLoginResq;
                 UserLoginResp userLoginResp = new UserLoginResp();
                 BeanUtils.copyProperties(userDB, userLoginResp);
                 return userLoginResp;
             } else {
-                // 密码不正确
                 LOG.info("密码不正确，输入的密码是：{}，数据库密码是：{}", req.getPassword(), userDB.getPassword());
                 throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
             }
         }
-        // return null;
     }
 
 }
